@@ -1,0 +1,44 @@
+[workspace]
+resolver = "2"
+members = ["crates/bookmarks-core", "src-tauri"]
+
+# Единый профиль для всех крейтов воркспейса: релиз оптимизируем по размеру
+# (десктопное приложение, холодный старт и объём инсталлятора важнее пикового
+# throughput), LTO и codegen-units=1 дают заметно меньший бинарник.
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+license = "MIT"
+repository = "https://github.com/KirillGrachev/Bookmarks"
+authors = ["Kirill Grachev"]
+
+[workspace.dependencies]
+bookmarks-core = { path = "crates/bookmarks-core" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde", "std"] }
+rusqlite = { version = "0.32", features = ["bundled", "functions"] }
+sha2 = "0.10"
+aes-gcm = "0.10"
+rand = "0.8"
+base64 = "0.22"
+regex = "1"
+pulldown-cmark = { version = "0.12", default-features = false }
+blake3 = "1"
+tracing = "0.1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
+
+[profile.release-debug]
+inherits = "release"
+strip = false
+debug = true
