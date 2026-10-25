@@ -1,0 +1,571 @@
+@import 'tailwindcss';
+@plugin "tailwindcss-animate";
+@custom-variant dark (&:is(.dark *));
+
+/* Утилита «без кольца»: в десктопе фокус-ринг на кликабельных плитках
+   выглядит как артефакт, но для клавиатурной навигации остаётся
+   focus-visible вариант ниже. */
+@utility no-ring {
+  @apply select-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-raised: var(--surface-raised);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-hover: var(--input-hover);
+  --color-ring: var(--ring);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus,
+a:focus,
+[role='button']:focus {
+  outline: none !important;
+}
+
+/* Текст заметок и полей — единственный place, где выделение разрешено. */
+input,
+textarea,
+[data-selectable='true'],
+[data-selectable='true'] * {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+input::placeholder,
+textarea::placeholder {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Палитра. Светлая тема — slate/blue, тёмная — zinc/blue: те же токены, */
+/* что и в справочнике, поэтому приложения выглядят одной семьёй.        */
+/* ------------------------------------------------------------------ */
+:root {
+  --background: #ffffff;
+  --foreground: #334155;
+  --surface: #ffffff;
+  --surface-hover: #f1f5f9;
+  --surface-raised: #ffffff;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-foreground: #ffffff;
+  --primary-gradient: linear-gradient(180deg, #3b82f6 0%, #2563eb 45%, #1d4ed8 100%);
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --input-hover: #cbd5e1;
+  --ring: rgba(148, 163, 184, 0.4);
+  --danger: #dc2626;
+  --success: #059669;
+  --warning: #d97706;
+  --shadow-raised: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --surface: #09090b;
+  --surface-hover: rgba(255, 255, 255, 0.04);
+  --surface-raised: #131316;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-foreground: #ffffff;
+  --primary-gradient: linear-gradient(180deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+  --muted: #0e0e10;
+  --muted-foreground: #a1a1aa;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.08);
+  --input-hover: rgba(255, 255, 255, 0.14);
+  --ring: rgba(59, 130, 246, 0.3);
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --shadow-raised: 0 8px 24px -6px rgba(0, 0, 0, 0.6), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+}
+
+/* Акцентный цвет интерфейса: переменные подставляются из настроек
+   (AccentColor.css_variables в ядре), поэтому смена акцента не требует
+   пересборки и не плодит классы. */
+[data-accent='cyan'] {
+  --primary: #0891b2;
+  --primary-hover: #0e7490;
+  --primary-gradient: linear-gradient(180deg, #22d3ee 0%, #0891b2 45%, #0e7490 100%);
+}
+[data-accent='green'] {
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-gradient: linear-gradient(180deg, #34d399 0%, #059669 45%, #047857 100%);
+}
+[data-accent='amber'] {
+  --primary: #d97706;
+  --primary-hover: #b45309;
+  --primary-gradient: linear-gradient(180deg, #fbbf24 0%, #d97706 45%, #b45309 100%);
+}
+[data-accent='red'] {
+  --primary: #dc2626;
+  --primary-hover: #b91c1c;
+  --primary-gradient: linear-gradient(180deg, #f87171 0%, #dc2626 45%, #b91c1c 100%);
+}
+[data-accent='pink'] {
+  --primary: #db2777;
+  --primary-hover: #be185d;
+  --primary-gradient: linear-gradient(180deg, #f472b6 0%, #db2777 45%, #be185d 100%);
+}
+[data-accent='violet'] {
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+  --primary-gradient: linear-gradient(180deg, #a78bfa 0%, #7c3aed 45%, #6d28d9 100%);
+}
+[data-accent='slate'] {
+  --primary: #475569;
+  --primary-hover: #334155;
+  --primary-gradient: linear-gradient(180deg, #64748b 0%, #475569 45%, #334155 100%);
+}
+.dark[data-accent='cyan'] {
+  --primary: #22d3ee;
+  --primary-hover: #06b6d4;
+}
+.dark[data-accent='green'] {
+  --primary: #34d399;
+  --primary-hover: #10b981;
+}
+.dark[data-accent='amber'] {
+  --primary: #fbbf24;
+  --primary-hover: #f59e0b;
+}
+.dark[data-accent='red'] {
+  --primary: #f87171;
+  --primary-hover: #ef4444;
+}
+.dark[data-accent='pink'] {
+  --primary: #f472b6;
+  --primary-hover: #ec4899;
+}
+.dark[data-accent='violet'] {
+  --primary: #a78bfa;
+  --primary-hover: #8b5cf6;
+}
+.dark[data-accent='slate'] {
+  --primary: #94a3b8;
+  --primary-hover: #64748b;
+}
+
+/* Цветовые метки заметок/папок/тегов — единый набор для чипов и полос. */
+.dot-slate {
+  --dot: #64748b;
+}
+.dot-blue {
+  --dot: #2563eb;
+}
+.dot-cyan {
+  --dot: #0891b2;
+}
+.dot-green {
+  --dot: #059669;
+}
+.dot-amber {
+  --dot: #d97706;
+}
+.dot-orange {
+  --dot: #ea580c;
+}
+.dot-red {
+  --dot: #dc2626;
+}
+.dot-pink {
+  --dot: #db2777;
+}
+.dot-violet {
+  --dot: #7c3aed;
+}
+.dark .dot-blue {
+  --dot: #60a5fa;
+}
+.dark .dot-cyan {
+  --dot: #22d3ee;
+}
+.dark .dot-green {
+  --dot: #34d399;
+}
+.dark .dot-amber {
+  --dot: #fbbf24;
+}
+.dark .dot-orange {
+  --dot: #fb923c;
+}
+.dark .dot-red {
+  --dot: #f87171;
+}
+.dark .dot-pink {
+  --dot: #f472b6;
+}
+.dark .dot-violet {
+  --dot: #a78bfa;
+}
+.dark .dot-slate {
+  --dot: #94a3b8;
+}
+
+.color-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--dot, var(--muted-foreground));
+  flex-shrink: 0;
+}
+
+.color-bar {
+  width: 3px;
+  border-radius: 999px;
+  background-color: var(--dot, transparent);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Переход темы: плавная смена цвета без анимации геометрии.            */
+/* ------------------------------------------------------------------ */
+.theme-transitioning * {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow !important;
+  transition-duration: 500ms !important;
+  transition-timing-function: ease-out !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Тосты (sonner) — приводим к карточкам приложения.                    */
+/* ------------------------------------------------------------------ */
+[data-sonner-toast] {
+  padding: 14px !important;
+  padding-right: 44px !important;
+  border-radius: var(--radius-md) !important;
+  display: flex !important;
+  align-items: center;
+  min-width: 320px;
+  max-width: 440px;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-raised) !important;
+  background-color: var(--surface-raised) !important;
+  color: var(--foreground) !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  left: auto !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  color: var(--muted-foreground) !important;
+  border: none !important;
+  opacity: 0.6 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-lg) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  z-index: 100 !important;
+  box-shadow: none !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1 !important;
+  background: var(--surface-hover) !important;
+  color: var(--danger) !important;
+  transform: translateY(-50%) scale(1.05) !important;
+}
+
+[data-sonner-toast] [data-close-button] svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Скроллбары: тонкие, полупрозрачные, без «ступеньки» на границе.      */
+/* ------------------------------------------------------------------ */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.2);
+  border-radius: 20px;
+  border: 4px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 116, 139, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(161, 161, 170, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(161, 161, 170, 0.4);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.2) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(161, 161, 170, 0.2) transparent;
+}
+
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear,
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Отключение анимаций: один класс обнуляет и CSS, и Motion (см. App).  */
+/* ------------------------------------------------------------------ */
+.disable-animations *,
+.disable-animations *:before,
+.disable-animations *:after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* Появление «подменюшек» (дропдауны, палитра команд) — та же семья движения,
+   что и прогрузка списков в lib/motionPresets.ts: 0.18s ease-out против 0.2s
+   кроссфейда, меню короче и ближе к курсору. При выключенных анимациях правило
+   выше обнуляет длительность, и меню открывается мгновенно. */
+@keyframes submenu-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.submenu-pop {
+  animation: submenu-pop 0.18s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+/* ------------------------------------------------------------------ */
+/* Markdown-превью: типографика без сторонней темы.                     */
+/* ------------------------------------------------------------------ */
+.markdown-body {
+  font-size: var(--editor-font-size, 15px);
+  line-height: 1.7;
+  color: var(--foreground);
+  word-wrap: break-word;
+}
+
+.markdown-body > *:first-child {
+  margin-top: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  margin: 1.4em 0 0.5em;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.markdown-body h1 {
+  font-size: 1.5em;
+}
+.markdown-body h2 {
+  font-size: 1.25em;
+}
+.markdown-body h3 {
+  font-size: 1.1em;
+}
+
+.markdown-body p {
+  margin: 0.65em 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.65em 0;
+  padding-left: 1.4em;
+}
+
+.markdown-body li {
+  margin: 0.25em 0;
+}
+
+.markdown-body li > input[type='checkbox'] {
+  margin-right: 0.5em;
+  accent-color: var(--primary);
+}
+
+.markdown-body blockquote {
+  margin: 0.9em 0;
+  padding: 0.2em 0 0.2em 1em;
+  border-left: 3px solid var(--primary);
+  color: var(--muted-foreground);
+}
+
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  background-color: var(--muted);
+}
+
+.markdown-body pre {
+  margin: 0.9em 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background-color: var(--muted);
+  border: 1px solid var(--border);
+  overflow: auto;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background: transparent;
+  font-size: 0.85em;
+  line-height: 1.6;
+}
+
+.markdown-body a {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.markdown-body a:hover {
+  border-bottom-color: var(--primary);
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  margin: 0.9em 0;
+  width: 100%;
+  font-size: 0.94em;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: var(--muted);
+  font-weight: 600;
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.4em 0;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
+
+/* Подсветка совпадений в результатах поиска (маркеры приходят из ядра). */
+mark,
+.search-hit {
+  background-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}
