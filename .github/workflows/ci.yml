@@ -1,0 +1,85 @@
+name: CI
+
+# Проверки запускаются на Windows: это целевая платформа приложения, а сборка
+# Tauri на Linux требует webkit-зависимостей и не отражает реальный артефакт.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  rust:
+    name: Rust — fmt, clippy, test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установить Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Кэш cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+
+      - name: clippy (-D warnings)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test --workspace --verbose
+
+  frontend:
+    name: Frontend — tsc, eslint, prettier, vitest, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Настроить Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Зависимости
+        run: npm ci
+
+      - name: Типы
+        run: npm run typecheck
+
+      - name: Линтер
+        run: npm run lint -- --max-warnings 0
+
+      - name: Форматирование
+        run: npm run format:check
+
+      - name: Тесты
+        run: npm run test:run
+
+      - name: Прод-сборка
+        run: npm run build
+
+      - name: Артефакт сборки
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+          retention-days: 7
